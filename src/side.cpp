@@ -1,7 +1,6 @@
 #include "side.h"
 
 #include <algorithm>
-#include <print>
 
 /** A bitmap of all pits holding 1 stone. */
 static constexpr uint64_t PIT_ONES = 0x0001010101010100ULL;

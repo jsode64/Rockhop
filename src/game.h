@@ -5,11 +5,11 @@
 /** A Kalah game state. */
 class Game {
 private:
-    /** The user. */
-    Side a;
+    /** The human/user. */
+    Side man;
 
-    /** The computer. */
-    Side b;
+    /** The bot/computer. */
+    Side bot;
 
     /** Turn tracker. Is `true` on user's turn, `false` on computer's. */
     bool turn;
@@ -26,10 +26,16 @@ public:
     /** Prints the game state. */
     void display() const;
 
-    /** Reads a move from the user and makes it. */
-    void user_move();
+    /** Makes a move. For user turns, reads from the console. For bot turns, calculates the best move. */
+    void move();
 
 private:
-    /** Makes the given move. */
-    void make_move(uint64_t i);
+    /** Reads a move from the user and makes it. */
+    void man_move();
+
+    /** Calculates a move for the bot to make and makes it. */
+    void bot_move();
+
+    /** Handles the move chaining and game ending. */
+    void handle_move(bool chain);
 };

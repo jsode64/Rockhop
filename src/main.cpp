@@ -5,6 +5,6 @@ int32_t main() {
 
     while (!game.is_over()) {
         game.display();
-        game.user_move();
+        game.move();
     }
 }
