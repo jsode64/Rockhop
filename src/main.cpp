@@ -1,10 +1,16 @@
+#include <print>
+
+#include "def.h"
 #include "game.h"
 
-int32_t main() {
+i32 main() {
     Game game;
 
     while (!game.is_over()) {
         game.display();
+        std::println("Eval: {}", game.eval());
         game.move();
     }
+
+    game.display();
 }

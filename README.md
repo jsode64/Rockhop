@@ -2,6 +2,4 @@
 
 Rockhop is a Kalah-style Mancala engine.
 
-## Disclaimer
-
-As of now, Rockhop is just a Kalah game. It plays random moves.
+It uses an alpha-beta pruned depth-first search to choose its moves.

@@ -2,13 +2,27 @@
 
 #include <iostream>
 #include <print>
-#include <random>
-#include <string>
 
+#include "ai.h"
 #include "movelist.h"
 
 Game::Game() : man(), bot(), turn(true), isOver(false) {
 
+}
+
+MoveList Game::legal_moves() const {
+    if (turn)
+        return MoveList(man);
+    else
+        return MoveList(bot);
+}
+
+i32 Game::eval() const {
+    return man.eval() - bot.eval();
+}
+
+bool Game::is_man_turn() const {
+    return turn;
 }
 
 bool Game::is_over() const {
@@ -16,7 +30,7 @@ bool Game::is_over() const {
 }
 
 void Game::display() const {
-    char turnChar = turn ? 'v' : '^';
+    const char turnChar = turn ? 'v' : '^';
     std::print(
         "------------------------\n"
         "   1  2  3  4  5  6\n"
@@ -31,6 +45,13 @@ void Game::display() const {
     );
 }
 
+void Game::make_move(u64 move) {
+    if (turn)
+        handle_move(man.make_move(move, bot));
+    else
+        handle_move(bot.make_move(move, man));
+}
+
 void Game::move() {
     if (turn)
         man_move();
@@ -40,35 +61,18 @@ void Game::move() {
 
 void Game::man_move() {
     // Get a valid move from the user.
-    MoveList moveList = MoveList(man);
-    u64 i = 0;
-    while (!moveList.has_move(i)) {
-        std::cin >> i;
-    }
+    MoveList moveList   = MoveList(man);
+    u64 move            = 0;
+    while (!moveList.has_move(move))
+        std::cin >> move;
 
     // Make the move.
-    handle_move(man.make_move(i, bot));
+    handle_move(man.make_move(move, bot));
 }
 
 void Game::bot_move() {
-    // Choose a random move.
-    MoveList moveList = MoveList(bot);
-    u64 i = 0;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    size n = 0;
-    for (const auto move: moveList) {
-        // Reservoir sample.
-        std::uniform_int_distribution<u64> dist(0, n);
-        if (dist(gen) == 0) {
-            i = move;
-        }
-
-        n++;
-    }
-
-    // Make the move.
-    handle_move(bot.make_move(i, man));
+    std::println("Bot thinking...");
+    handle_move(bot.make_move(AI::find_move(*this), man));
 }
 
 void Game::handle_move(bool chain) {
