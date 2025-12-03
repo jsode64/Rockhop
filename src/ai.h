@@ -1,12 +1,14 @@
 #pragma once
 
+#include <tuple>
+
 #include "def.h"
 #include "game.h"
 
 class AI {
 public:
-    /** Performs a search to find the optimal move and returns it. */
-    static u64 find_move(Game game);
+    /** Performs a search to find the optimal move and returns it and the evaluation. */
+    static std::tuple<u64, i32> find_move(Game game);
 
 private:
     /** Alpha beta prune depth search. */

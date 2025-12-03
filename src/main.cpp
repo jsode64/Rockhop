@@ -8,7 +8,6 @@ i32 main() {
 
     while (!game.is_over()) {
         game.display();
-        std::println("Eval: {}", game.eval());
         game.move();
     }
 

@@ -9,7 +9,7 @@
 static constexpr i32 SCORE_MAX = std::numeric_limits<i32>::max();
 static constexpr i32 SCORE_MIN = std::numeric_limits<i32>::min();
 
-u64 AI::find_move(Game game) {
+std::tuple<u64, i32> AI::find_move(Game game) {
     u64 bestMove    = 0;
     i32 bestScore   = SCORE_MAX;
 
@@ -25,7 +25,7 @@ u64 AI::find_move(Game game) {
         }
     }
 
-    return bestMove;
+    return std::tuple(bestMove, bestScore);
 }
 
 i32 AI::score_move(Game game, u64 move, i32 depth, i32 a, i32 b) {

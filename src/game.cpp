@@ -62,17 +62,30 @@ void Game::move() {
 void Game::man_move() {
     // Get a valid move from the user.
     MoveList moveList   = MoveList(man);
-    u64 move            = 0;
-    while (!moveList.has_move(move))
+    u64 move            = -1;
+    while (!moveList.has_move(move) && move != 0)
         std::cin >> move;
 
-    // Make the move.
-    handle_move(man.make_move(move, bot));
+    if (move == 0) {
+        // Giving 0 skips move.
+        turn = false;
+    } else {
+        // Make the move.
+        handle_move(man.make_move(move, bot));
+    }
 }
 
 void Game::bot_move() {
     std::println("Bot thinking...");
-    handle_move(bot.make_move(AI::find_move(*this), man));
+
+    // Get move and evaluation.
+    auto [move, eval] = AI::find_move(*this);
+    handle_move(bot.make_move(move, man));
+
+    // Print info.
+    std::println("Making move: {}", move);
+    if (turn)
+        std::println("Current evaluation: {}", eval);
 }
 
 void Game::handle_move(bool chain) {
