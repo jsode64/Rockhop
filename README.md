@@ -21,4 +21,6 @@ and query the bost for the optimal move in any position.
 
 - "p", "pos", "position": Set the position
 
-- "go": Send the bot into thought, prints the optimal move and evaluation when done
+- "go": Have the bot make a move
+
+- "e", "eval": Have the bot give the current evaluation and best move

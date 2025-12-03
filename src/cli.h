@@ -61,7 +61,14 @@ private:
     /**
      * Handles "go".
      * 
-     * Searches for the best move and displays it and the evaluation.
+     * Plays a specified number of moves (default 1).
      */
     void go(std::istringstream& toks);
+
+    /**
+     * Handles "e" or "eval".
+     * 
+     * Searches for the best move and displays it and the evaluation.
+     */
+    void eval(std::istringstream& toks);
 };

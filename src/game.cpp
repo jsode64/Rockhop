@@ -2,7 +2,6 @@
 
 #include <print>
 
-#include "ai.h"
 #include "movelist.h"
 
 Game::Game() : a(true), b(false) {

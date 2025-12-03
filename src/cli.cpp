@@ -2,14 +2,18 @@
 
 #include <charconv>
 #include <iostream>
-#include <sstream>
+#include <optional>
 #include <print>
+#include <sstream>
 
 #include "ai.h"
 #include "def.h"
 
-CLI::CLI() : game(), isOpen(true) {
+/** Parses the given string to an unsigned integer and returns it, or `nullopt` if invalid. */
+std::optional<u32> parse_uint(const std::string& s);
 
+CLI::CLI() : game(), isOpen(true) {
+    std::println("Rockhop v1.0");
 }
 
 bool CLI::is_open() const {
@@ -37,6 +41,8 @@ void CLI::process() {
         position(toks);
     else if (cmd == "go")
         go(toks);
+    else if (cmd == "e" || cmd == "eval")
+        eval(toks);
     else
         std::println("Unknown comand: \"{}\"", cmd);
     
@@ -65,7 +71,18 @@ void CLI::help(std::istringstream& toks) {
         else if (tok == "p" || tok == "pos" || tok == "position")
             std::println("{}: Sets the position. Example: \"p startpos\".", tok);
         else if (tok == "go")
-            std::println("{}: Sends the bot into a search then prints the best move and current evaluation.", tok);
+            std::println(
+                "{}: Find the best move and make it the given number of times. Example: \"go depth 22 play 4\""
+                "\n  If depth is not specified, defaults to 14."
+                "\n  If number of moves to play is not specified, defaults to 1.",
+                tok
+            );
+        else if (tok == "e" || tok == "eval")
+            std::println(
+                "{}: Get the best move and current evaluation with the given depth. Example: \"eval depth 12\"."
+                "\n  If depth is not specified, defaults to 14.",
+                tok
+            );
         else
             std::println("Unknown command \"{}\", ignoring.", tok);
     }
@@ -117,9 +134,89 @@ void CLI::position(std::istringstream& toks) {
         std::println("Unknown position argument: \"{}\". Game state unchanged.", tok);
 }
 
-void CLI::go(std::istringstream&) {
-    std::println("Thinking...");
-    auto [move, eval] = AI::find_move(game);
-    std::println("Best move: {}", move);
-    std::println("Evaluation: {}", eval);
+void CLI::go(std::istringstream& toks) {
+    // Get the depth options.
+    u32 depth   = 14;
+    u32 nMoves  = 1;
+    std::string tok;
+    while (toks >> tok) {
+        if (tok == "depth") {
+            // Get and set depth.
+            toks >> tok;
+            auto n = parse_uint(tok);
+            if (n)
+                depth = n.value();
+            else {
+                std::println("Expected unsigned integer for depth, found \"{}\".", tok);
+                return;
+            }
+        } else if (tok == "play") {
+            // Get and set number of moves to play.
+            toks >> tok;
+            auto n = parse_uint(tok);
+            if (n)
+                nMoves = n.value();
+            else {
+                std::println("Expected unsigned integer for number of moves to play, found \"{}\".", tok);
+                return;
+            }
+        }
+    }
+
+    for (u32 i = 0; i < nMoves; i++) {
+        // Stop early if game ends.
+        if (game.is_over()) {
+            std::println("Game ended. Ending search.");
+            break;
+        }
+
+        // Get the best move.
+        std::println("Thinking with depth {}...", depth);
+        auto [move, _] = AI::find_move(game, depth);
+
+        // Say and make it.
+        std::println("Playing move {}.", move);
+        game.make_move(move);
+    }
+}
+
+void CLI::eval(std::istringstream& toks) {
+    u32 depth = 14;
+
+    // See if a depth was given.
+    std::string tok;
+    if (toks >> tok) {
+        if (tok == "depth") {
+            // Get and set depth.
+            toks >> tok;
+            auto n = parse_uint(tok);
+            if (n)
+                depth = n.value();
+            else {
+                std::println("Expected unsigned integer for depth, found \"{}\"", tok);
+                return;
+            }
+        } else {
+            std::println("Unknown argument \"{}\"", tok);
+            return;
+        }
+    }
+
+    // Get evaluation.
+    std::println("Evaluating with depth {}...", depth);
+    auto [move, eval] = AI::find_move(game, depth);
+    std::println("Best move:   {}", move);
+    std::println("Evaluation:  {}", eval);
+}
+
+std::optional<u32> parse_uint(const std::string& s) {
+    // Attempt to parse to integer.
+    u32 n = 0;
+    auto [_, e] = std::from_chars(s.data(), s.data() + s.size(), n);
+
+    if (e == std::errc{})
+        return n;
+    else
+        // Invalid integer.
+        return std::nullopt;
 }
