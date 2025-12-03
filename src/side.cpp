@@ -4,6 +4,9 @@
 
 #include "def.h"
 
+/** The turn bit. */
+static constexpr u64 TURN_BIT       = 0x8000000000000000ULL;
+
 /** A bitmap of all pits holding 1 stone. */
 static constexpr u64 PIT_ONES       = 0x0001010101010100ULL;
 
@@ -25,8 +28,10 @@ static constexpr u64 N_START_STONES = 4;
 /** The score returned for a winning position. */
 static constexpr i32 WIN_SCORE      = 5'000'000;
 
-Side::Side() : pits(PIT_ONES * N_START_STONES) {
-
+Side::Side(bool isTurn) : pits(PIT_ONES * N_START_STONES) {
+    // Activate turn bit if it's this side's turn.
+    if (isTurn)
+        pits |= TURN_BIT;
 }
 
 u64 Side::pit(const u64 i) const {
@@ -37,6 +42,7 @@ u64 Side::mancala() const {
     return pits & MAN_MASK;
 }
 
+__attribute__((hot))
 i32 Side::eval() const {
     u64 nMancala    = mancala();
     i32 score       = 0;
@@ -45,10 +51,10 @@ i32 Side::eval() const {
     if (nMancala > N_START_STONES * N_PITS)
         return WIN_SCORE;
 
-    // Favore a bountiful mancala.
+    // Favor a bountiful mancala.
     score += nMancala * 10;
 
-    // Analyze pits:
+    // Analyze pits.
     for (u64 i = 1; i < N_PITS; i++) {
         u64 nStones = pit(i);
 
@@ -71,6 +77,11 @@ bool Side::has_moves() const {
     return (pits & PIT_MASK) != 0;
 }
 
+bool Side::has_turn() const {
+    return (pits & TURN_BIT) != 0;
+}
+
+__attribute__((hot))
 bool Side::make_move(const u64 i, Side& op) {
     const u64 p = i * 8;
 
@@ -131,6 +142,10 @@ void Side::take_pits() {
     
     // Set all pits to be empty.
     pits &= ~PIT_MASK;
+}
+
+void Side::toggle_turn() {
+    pits ^= TURN_BIT;
 }
 
 u64 Side::pit_i(u64 i) const {

@@ -15,7 +15,7 @@ private:
     u64 pits;
 
 public:
-    Side();
+    Side(bool isTurn);
 
     /**
      * Returns the number of stones in the given pit.
@@ -36,11 +36,17 @@ public:
     /** Returns `true` if the side has at least one move they can make, `false` if not. */
     bool has_moves() const;
 
+    /** Returns `true` if it's this side's turn to move, `false` if not. */
+    bool has_turn() const;
+
     /** Makes the given move. Returns `true` if the user can move again. */
     bool make_move(u64 i, Side& op);
 
     /** Moves all stones in the pits to the mancala. */
     void take_pits();
+
+    /** Toggles the turn marker for the side. */
+    void toggle_turn();
 
 private:
     /**

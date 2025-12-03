@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include "def.h"
 #include "movelist.h"
 #include "side.h"
@@ -7,17 +9,11 @@
 /** A Kalah game state. */
 class Game {
 private:
-    /** The human/user. */
-    Side man;
+    /** The lower/PoV side. */
+    Side a;
 
-    /** The bot/computer. */
-    Side bot;
-
-    /** Turn tracker. Is `true` on user's turn, `false` on computer's. */
-    bool turn;
-
-    /** Is `true` when the game is over, `false` if still going. */
-    bool isOver;
+    /** The upper side. */
+    Side b;
 
 public:
     Game();
@@ -33,8 +29,8 @@ public:
      */
     i32 eval() const;
 
-    /** Returns `true` if it's the human's turn, `false` if not. */
-    bool is_man_turn() const;
+    /** Returns `true` if it's the PoV side's turn, `false` if not. */
+    bool is_pov_turn() const;
 
     /** Returns `true` if the game is over, `false` if not. */
     bool is_over() const;
@@ -42,19 +38,28 @@ public:
     /** Prints the game state. */
     void display() const;
 
-    /** Makes the given move. */
-    void make_move(u64 move);
+    /**
+     * Makes the given move.
+     * 
+     * If the move is not legal, returns `false` without changing the game state.
+     * If the move is legal, plays it and returns `true`.
+    */
+    bool make_move(u64 move);
 
-    /** Makes a move. For user turns, reads from the console. For bot turns, calculates the best move. */
-    void move();
+    /**
+     * Makes the given move without checking if it is legal.
+     * 
+     * If called with an illegal move, the turns will just be swapped.
+     */
+    void make_move_unchecked(u64 move);
 
 private:
-    /** Reads a move from the user and makes it. */
-    void man_move();
-
-    /** Calculates a move for the bot to make and makes it. */
-    void bot_move();
+    /** Returns whose turn it is to move next and their opponent. */
+    std::tuple<Side&, Side&> get_turn_user_opp();
 
     /** Handles the move chaining and game ending. */
     void handle_move(bool chain);
+
+    /** Swaps whose turn it is to move. */
+    void swap_turn();
 };
