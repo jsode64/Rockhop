@@ -9,7 +9,7 @@
 static constexpr i32 SCORE_MAX = std::numeric_limits<i32>::max();
 static constexpr i32 SCORE_MIN = std::numeric_limits<i32>::min();
 
-std::tuple<u64, i32> AI::find_move(const Game game, const u32 depth) {
+std::tuple<u64, i32> AI::find_move(const Game game, const i32 depth) {
     const bool  isPovTurn   = game.is_pov_turn();
     u64         bestMove    = 0;
     i32         bestScore   = isPovTurn ? SCORE_MIN : SCORE_MAX;
@@ -70,7 +70,7 @@ std::tuple<std::array<u64, 6>, size> AI::get_sorted_moves(const Game game) {
 }
 
 __attribute__((hot))
-i32 AI::alpha_beta(Game game, const u64 move, const u32 depth, i32 a, i32 b) {
+i32 AI::alpha_beta(Game game, const u64 move, const i32 depth, i32 a, i32 b) {
     // This is OK because only legal moves are iterated.
     game.make_move_unchecked(move);
 

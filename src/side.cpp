@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "config.h"
 #include "def.h"
 
 /** The turn bit. */
@@ -19,7 +20,7 @@ static constexpr u64 MAN_MASK       = 0x00000000000000FFULL;
 /** A mask to all pit bits. */
 static constexpr u64 PIT_MASK       = 0x00FFFFFFFFFFFF00ULL;
 
-Side::Side(bool isTurn) : pits(PIT_ONES * N_START_STONES) {
+Side::Side(const bool isTurn) : pits(PIT_ONES * rl::N_STARTING_STONES) {
     // Activate turn bit if it's this side's turn.
     if (isTurn)
         pits |= TURN_BIT;
@@ -33,15 +34,17 @@ u64 Side::mancala() const {
     return pits & MAN_MASK;
 }
 
-u64 Side::stones_in_pits() const {
-    return pit_i(8)
-        + pit_i(16)
-        + pit_i(24)
-        + pit_i(32)
-        + pit_i(40)
-        + pit_i(48);
-}
+i32 Side::grade_pit(const u64 i, const Side op) const {
+    const u64 myStones  = pit(i);
+    i32 score           = myStones * ew::STONE_IN_PIT;
 
+    // See it the pit leads to a capture.
+    if (myStones < i && pit(i - myStones)) {
+        score += op.pit(7 + myStones - i) * ew::STONE_FROM_CAPTURE;
+    }
+
+    return score;
+}
 bool Side::has_moves() const {
     return (pits & PIT_MASK) != 0;
 }
@@ -117,6 +120,6 @@ void Side::toggle_turn() {
     pits ^= TURN_BIT;
 }
 
-u64 Side::pit_i(u64 i) const {
+u64 Side::pit_i(const u64 i) const {
     return (pits >> i) & MAN_MASK;
 }

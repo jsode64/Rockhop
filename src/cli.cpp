@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "ai.h"
+#include "config.h"
 #include "def.h"
 
 /** Parses the given string to an unsigned integer and returns it, or `nullopt` if invalid. */
@@ -73,15 +74,16 @@ void CLI::help(std::istringstream& toks) {
         else if (tok == "go")
             std::println(
                 "{}: Find the best move and make it the given number of times. Example: \"go depth 22 play 4\""
-                "\n  If depth is not specified, defaults to 14."
+                "\n  If you want it to play until it's not its turn, use \"persist\"."
+                "\n  If depth is not specified, defaults to {}."
                 "\n  If number of moves to play is not specified, defaults to 1.",
-                tok
+                tok, ci::GO_DEFAULT_DEPTH
             );
         else if (tok == "e" || tok == "eval")
             std::println(
                 "{}: Get the best move and current evaluation with the given depth. Example: \"eval depth 12\"."
-                "\n  If depth is not specified, defaults to 14.",
-                tok
+                "\n  If depth is not specified, defaults to {}.",
+                tok, ci::EVAL_DEFAULT_DEPTH
             );
         else
             std::println("Unknown command \"{}\", ignoring.", tok);
@@ -137,7 +139,7 @@ void CLI::position(std::istringstream& toks) {
 void CLI::go(std::istringstream& toks) {
     // Get the depth options.
     const bool  startTurn   = game.is_pov_turn();
-    u32         depth       = 14;
+    u32         depth       = ci::GO_DEFAULT_DEPTH;
     u32         nMoves      = 1;
     bool        persist     = false;
     std::string tok;
@@ -189,7 +191,7 @@ void CLI::go(std::istringstream& toks) {
 }
 
 void CLI::eval(std::istringstream& toks) {
-    u32 depth = 14;
+    u32 depth = ci::EVAL_DEFAULT_DEPTH;
 
     // See if a depth was given.
     std::string tok;

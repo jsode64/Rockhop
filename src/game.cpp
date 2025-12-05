@@ -2,6 +2,7 @@
 
 #include <print>
 
+#include "config.h"
 #include "movelist.h"
 
 Game::Game() : a(true), b(false) {
@@ -32,21 +33,26 @@ i32 Game::eval() const {
     i32 bMancala = static_cast<i32>(b.mancala());
 
     // Catch an unstoppable win for either player.
-    constexpr i32 N_STONES_TO_WIN   = Side::N_PITS * Side::N_START_STONES;
-    constexpr i32 SCORE_WIN         = 2'000'000;
+    constexpr i32 N_STONES_TO_WIN = rl::N_PITS * rl::N_STARTING_STONES;
     if (aMancala > N_STONES_TO_WIN)
-        return SCORE_WIN;
+        return ew::WINNING;
     if (bMancala > N_STONES_TO_WIN)
-        return -SCORE_WIN;
+        return -ew::WINNING;
 
     // Favor a bountiful mancala.
-    score += (aMancala - bMancala) * 30;
+    score += (aMancala - bMancala) * ew::STONE_IN_MANCALA;
 
     // Favor having the move.
     if (a.has_turn())
-        score += 15;
+        score += ew::OWN_TURN;
     else
-        score -= 15;
+        score -= ew::OWN_TURN;
+    
+    // Check for captures.
+    for (u64 i = 0; i <= rl::N_PITS; i++) {
+        score += a.grade_pit(i, b);
+        score -= b.grade_pit(i, a);
+    }
 
     return score;
 }
