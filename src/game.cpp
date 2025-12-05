@@ -8,6 +8,16 @@ Game::Game() : a(true), b(false) {
 
 }
 
+std::tuple<Side, Side> Game::get_sides() const {
+    return std::tuple(a, b);
+}
+
+std::tuple<Side, Side> Game::get_turn_user_opp() const {
+    return a.has_turn()
+        ? std::tuple(a, b)
+        : std::tuple(b, a);
+}
+
 MoveList Game::legal_moves() const {
     if (a.has_turn())
         return MoveList(a);
@@ -15,8 +25,30 @@ MoveList Game::legal_moves() const {
         return MoveList(b);
 }
 
+__attribute__((hot))
 i32 Game::eval() const {
-    return a.eval() - b.eval();
+    i32 score = 0;
+    i32 aMancala = static_cast<i32>(a.mancala());
+    i32 bMancala = static_cast<i32>(b.mancala());
+
+    // Catch an unstoppable win for either player.
+    constexpr i32 N_STONES_TO_WIN   = Side::N_PITS * Side::N_START_STONES;
+    constexpr i32 SCORE_WIN         = 2'000'000;
+    if (aMancala > N_STONES_TO_WIN)
+        return SCORE_WIN;
+    if (bMancala > N_STONES_TO_WIN)
+        return -SCORE_WIN;
+
+    // Favor a bountiful mancala.
+    score += (aMancala - bMancala) * 30;
+
+    // Favor having the move.
+    if (a.has_turn())
+        score += 15;
+    else
+        score -= 15;
+
+    return score;
 }
 
 bool Game::is_pov_turn() const {
@@ -45,7 +77,7 @@ void Game::display() const {
 }
 
 bool Game::make_move(u64 move) {
-    auto [u, o] = get_turn_user_opp();
+    auto [u, o] = get_turn_user_opp_ref();
 
     if (MoveList(u).has_move(move)) {
         // Make the move.
@@ -58,11 +90,11 @@ bool Game::make_move(u64 move) {
 }
 
 void Game::make_move_unchecked(u64 move) {
-    auto [u, o] = get_turn_user_opp();
+    auto [u, o] = get_turn_user_opp_ref();
     handle_move(u.make_move(move, o));
 }
 
-std::tuple<Side&, Side&> Game::get_turn_user_opp() {
+std::tuple<Side&, Side&> Game::get_turn_user_opp_ref() {
     return a.has_turn()
         ? std::tie(a, b)
         : std::tie(b, a);

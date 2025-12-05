@@ -21,6 +21,12 @@ public:
     /** Returns an iterator of the current legal moves. */
     MoveList legal_moves() const;
 
+    /** Returns the PoV side and the opponent side in a tuple. */
+    std::tuple<Side, Side> get_sides() const;
+
+    /** Returns whose turn it is and their opponent in a tuple. */
+    std::tuple<Side, Side> get_turn_user_opp() const;
+
     /** 
      * Returns an evaluation of the current position. 
      * 
@@ -54,8 +60,8 @@ public:
     void make_move_unchecked(u64 move);
 
 private:
-    /** Returns whose turn it is to move next and their opponent. */
-    std::tuple<Side&, Side&> get_turn_user_opp();
+    /** Returns references of whose turn it is to move next and their opponent. */
+    std::tuple<Side&, Side&> get_turn_user_opp_ref();
 
     /** Handles the move chaining and game ending. */
     void handle_move(bool chain);

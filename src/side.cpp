@@ -19,15 +19,6 @@ static constexpr u64 MAN_MASK       = 0x00000000000000FFULL;
 /** A mask to all pit bits. */
 static constexpr u64 PIT_MASK       = 0x00FFFFFFFFFFFF00ULL;
 
-/** The number of pits on each side. */
-static constexpr u64 N_PITS         = 6;
-
-/** The number of stones in each pit at the game start. */
-static constexpr u64 N_START_STONES = 4;
-
-/** The score returned for a winning position. */
-static constexpr i32 WIN_SCORE      = 5'000'000;
-
 Side::Side(bool isTurn) : pits(PIT_ONES * N_START_STONES) {
     // Activate turn bit if it's this side's turn.
     if (isTurn)
@@ -42,35 +33,13 @@ u64 Side::mancala() const {
     return pits & MAN_MASK;
 }
 
-__attribute__((hot))
-i32 Side::eval() const {
-    u64 nMancala    = mancala();
-    i32 score       = 0;
-
-    // Guaranteed win.
-    if (nMancala > N_START_STONES * N_PITS)
-        return WIN_SCORE;
-
-    // Favor a bountiful mancala.
-    score += nMancala * 10;
-
-    // Analyze pits.
-    for (u64 i = 1; i < N_PITS; i++) {
-        u64 nStones = pit(i);
-
-        if (nStones == 0) {
-            // Favor empty pits for captures.
-            score += 3;
-        } else if (nStones < i) {
-            // Favor underflown pits.
-            score += nStones + 2;
-        } else {
-            // Avoid overflown pits.
-            score -= std::min(6ULL, nStones - i);
-        }
-    }
-
-    return score;
+u64 Side::stones_in_pits() const {
+    return pit_i(8)
+        + pit_i(16)
+        + pit_i(24)
+        + pit_i(32)
+        + pit_i(40)
+        + pit_i(48);
 }
 
 bool Side::has_moves() const {

@@ -136,8 +136,10 @@ void CLI::position(std::istringstream& toks) {
 
 void CLI::go(std::istringstream& toks) {
     // Get the depth options.
-    u32 depth   = 14;
-    u32 nMoves  = 1;
+    const bool  startTurn   = game.is_pov_turn();
+    u32         depth       = 14;
+    u32         nMoves      = 1;
+    bool        persist     = false;
     std::string tok;
     while (toks >> tok) {
         if (tok == "depth") {
@@ -160,10 +162,16 @@ void CLI::go(std::istringstream& toks) {
                 std::println("Expected unsigned integer for number of moves to play, found \"{}\".", tok);
                 return;
             }
+        } else if (tok == "persist") {
+            persist = true;
+        } else {
+            std::println("Unkown go argument: {}", tok);
+            return;
         }
     }
 
-    for (u32 i = 0; i < nMoves; i++) {
+    u32 i = 0;
+    while (i++ < nMoves || (persist && game.is_pov_turn() == startTurn)) {
         // Stop early if game ends.
         if (game.is_over()) {
             std::println("Game ended. Ending search.");

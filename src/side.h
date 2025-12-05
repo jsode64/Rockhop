@@ -15,6 +15,12 @@ private:
     u64 pits;
 
 public:
+    /** The number of pits on each side. */
+    static constexpr u64 N_PITS         = 6;
+
+    /** The number of stones in each pit at the game start. */
+    static constexpr u64 N_START_STONES = 4;
+
     Side(bool isTurn);
 
     /**
@@ -27,11 +33,8 @@ public:
     /** Returns the number of stones in the mancala. */
     u64 mancala() const;
 
-    /**
-     * Evaluates the side and returns a score for it. A higher score is a more
-     * favorable position.
-     */
-    i32 eval() const;
+    /** Returns the number of stones in the side's pits. */
+    u64 stones_in_pits() const;
 
     /** Returns `true` if the side has at least one move they can make, `false` if not. */
     bool has_moves() const;
