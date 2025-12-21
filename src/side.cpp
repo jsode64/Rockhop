@@ -20,7 +20,7 @@ static constexpr u64 MAN_MASK       = 0x00000000000000FFULL;
 /** A mask to all pit bits. */
 static constexpr u64 PIT_MASK       = 0x00FFFFFFFFFFFF00ULL;
 
-Side::Side(const bool isTurn) : pits(PIT_ONES * rl::N_STARTING_STONES) {
+Side::Side(const bool isTurn) : pits(PIT_ONES * N_STARTING_STONES) {
     // Activate turn bit if it's this side's turn.
     if (isTurn)
         pits |= TURN_BIT;
@@ -34,17 +34,6 @@ u64 Side::mancala() const {
     return pits & MAN_MASK;
 }
 
-i32 Side::grade_pit(const u64 i, const Side op) const {
-    const u64 myStones  = pit(i);
-    i32 score           = myStones * ew::STONE_IN_PIT;
-
-    // See it the pit leads to a capture.
-    if (myStones < i && pit(i - myStones)) {
-        score += op.pit(7 + myStones - i) * ew::STONE_FROM_CAPTURE;
-    }
-
-    return score;
-}
 bool Side::has_moves() const {
     return (pits & PIT_MASK) != 0;
 }
@@ -75,7 +64,7 @@ bool Side::make_move(const u64 i, Side& op) {
 
     // Place overflown pits on opponent's side.
     u64 opMask              = 0;
-    if (nStones > i) opMask |= 0x00FFFFFFFFFFFF00ULL << (8 * (6 - std::min(6ULL, nStones - i)));
+    if (nStones > i) opMask |= 0x00FFFFFFFFFFFF00ULL << (8 * (6 - std::min(u64{6}, nStones - i)));
     op.pits += PIT_ONES & opMask;
 
     // Get the last position and tell if it was a capture or mancala chain.

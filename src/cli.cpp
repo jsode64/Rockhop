@@ -7,14 +7,18 @@
 #include <sstream>
 
 #include "ai.h"
-#include "config.h"
 #include "def.h"
+#include "verison.h"
 
-/** Parses the given string to an unsigned integer and returns it, or `nullopt` if invalid. */
+/** 
+ * @brief Parses the given string to a `u32`.
+ * 
+ * @return The parsed integer or `nullopt` if there's an error.
+ */
 std::optional<u32> parse_uint(const std::string& s);
 
 CLI::CLI() : game(), isOpen(true) {
-    std::println("Rockhop v1.0");
+    std::println("Rockhop v{}.{}.{}", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
 bool CLI::is_open() const {
@@ -73,17 +77,17 @@ void CLI::help(std::istringstream& toks) {
             std::println("{}: Sets the position. Example: \"p startpos\".", tok);
         else if (tok == "go")
             std::println(
-                "{}: Find the best move and make it the given number of times. Example: \"go depth 22 play 4\""
+                "{}: Find the best move and make it the given number of times. Example: \"go depth 22 for 4\""
                 "\n  If you want it to play until it's not its turn, use \"persist\"."
                 "\n  If depth is not specified, defaults to {}."
                 "\n  If number of moves to play is not specified, defaults to 1.",
-                tok, ci::GO_DEFAULT_DEPTH
+                tok, CLI::DEFAULT_DEPTH
             );
         else if (tok == "e" || tok == "eval")
             std::println(
                 "{}: Get the best move and current evaluation with the given depth. Example: \"eval depth 12\"."
                 "\n  If depth is not specified, defaults to {}.",
-                tok, ci::EVAL_DEFAULT_DEPTH
+                tok, CLI::DEFAULT_DEPTH
             );
         else
             std::println("Unknown command \"{}\", ignoring.", tok);
@@ -139,7 +143,7 @@ void CLI::position(std::istringstream& toks) {
 void CLI::go(std::istringstream& toks) {
     // Get the depth options.
     const bool  startTurn   = game.is_pov_turn();
-    u32         depth       = ci::GO_DEFAULT_DEPTH;
+    u32         depth       = CLI::DEFAULT_DEPTH;
     u32         nMoves      = 1;
     bool        persist     = false;
     std::string tok;
@@ -154,7 +158,7 @@ void CLI::go(std::istringstream& toks) {
                 std::println("Expected unsigned integer for depth, found \"{}\".", tok);
                 return;
             }
-        } else if (tok == "play") {
+        } else if (tok == "for") {
             // Get and set number of moves to play.
             toks >> tok;
             auto n = parse_uint(tok);
@@ -191,7 +195,7 @@ void CLI::go(std::istringstream& toks) {
 }
 
 void CLI::eval(std::istringstream& toks) {
-    u32 depth = ci::EVAL_DEFAULT_DEPTH;
+    u32 depth = CLI::DEFAULT_DEPTH;
 
     // See if a depth was given.
     std::string tok;

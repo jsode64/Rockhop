@@ -14,3 +14,5 @@ using size  = __SIZE_TYPE__;
 
 using f32   = float;
 using f64   = double;
+
+using str   = const char*;

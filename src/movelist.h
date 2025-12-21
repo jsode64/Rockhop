@@ -5,14 +5,20 @@
 
 class MoveList {
 protected:
-    /** A bitmap of legal moves. */
+    /**
+     * @brief A bitmap of legal moves.
+     */
     u8 moves;
 
 public:
-    /** Iterator for moves. */
+    /**
+     * @brief Iterator for moves.
+     */
     class MoveIter {
     private:
-        /** A bitmap of legal moves. */
+        /**
+         * @brief A bitmap of legal moves.
+         */
         u8 moves;
 
     public:
@@ -29,12 +35,18 @@ public:
 
     MoveList(const Side& side);
 
-    /** Returns `true` if the given move is lega. */
+    /**
+     * @brief Returns `true` if the given move is legal.
+     */
     bool has_move(u64 i);
 
-    /** Returns an iterator over the legal moves. */
+    /**
+     * @brief Returns an iterator over the legal moves.
+     */
     MoveIter begin() const;
 
-    /** The end of a `MoveList::MoveIter`. */
+    /**
+     * @brief The end of a `MoveList::MoveIter`.
+     */
     MoveIter end() const;
 };

@@ -28,30 +28,24 @@ MoveList Game::legal_moves() const {
 
 __attribute__((hot))
 i32 Game::eval() const {
-    i32 score = 0;
-    i32 aMancala = static_cast<i32>(a.mancala());
-    i32 bMancala = static_cast<i32>(b.mancala());
+    i32 score       = 0;
+    u64 aMancala    = a.mancala();
+    u64 bMancala    = b.mancala();
 
     // Catch an unstoppable win for either player.
-    constexpr i32 N_STONES_TO_WIN = rl::N_PITS * rl::N_STARTING_STONES;
-    if (aMancala > N_STONES_TO_WIN)
-        return ew::WINNING;
-    if (bMancala > N_STONES_TO_WIN)
-        return -ew::WINNING;
+    if (aMancala >= N_STONES_TO_WIN)
+        return EW_WINNING;
+    if (bMancala >= N_STONES_TO_WIN)
+        return -EW_WINNING;
 
     // Favor a bountiful mancala.
-    score += (aMancala - bMancala) * ew::STONE_IN_MANCALA;
-
-    // Favor having the move.
-    if (a.has_turn())
-        score += ew::OWN_TURN;
-    else
-        score -= ew::OWN_TURN;
+    score += (static_cast<i32>(aMancala) - static_cast<i32>(bMancala)) * EW_STONE_IN_MANCALA;
     
-    // Check for captures.
-    for (u64 i = 0; i <= rl::N_PITS; i++) {
-        score += a.grade_pit(i, b);
-        score -= b.grade_pit(i, a);
+    // Favor pit control.
+    for (u64 i = 0; i <= N_PITS; i++) {
+        i32 nStonesA = static_cast<i32>(a.pit(i));
+        i32 nStonesB = static_cast<i32>(b.pit(i));
+        score += (nStonesA - nStonesB) * EW_STONE_IN_PIT;
     }
 
     return score;
