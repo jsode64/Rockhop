@@ -57,7 +57,7 @@ public:
     /**
      * @brief Returns the number of stones in the pit at the given index.
      */
-    inline i32 pit(u64 i) const {
+    inline i32 pit(u8 i) const {
         return pit_i(i * 8);
     }
 
@@ -67,11 +67,6 @@ public:
     inline i32 mancala() const {
         return static_cast<i32>(man);
     }
-
-    /**
-     * @brief Grades the given pit and returns its score.
-     */
-    i32 grade_pit(u64 i, Side op) const;
 
     /**
      * @brief Returns `true` if the side has at least one move they can make,
@@ -87,7 +82,7 @@ public:
     /**
      * @brief Makes the given move. Returns `true` if the user can move again.
      */
-    bool make_move(u64 i, Side& op);
+    bool make_move(u8 move, Side& op);
 
     /**
      * @brief Moves all stones in the pits to the mancala.
@@ -105,7 +100,7 @@ private:
      * 
      * @note Assumes the given index is the pit index multiplied by 8.
      */
-    inline i32 pit_i(u64 i) const {
+    inline i32 pit_i(u8 i) const {
         return static_cast<i32>((pits >> i) & Side::MAN_MASK);
     }
 };

@@ -12,9 +12,9 @@ constexpr inline u32 VERSION_MAJOR = 1;
 /**
  * @brief The minor version.
  */
-constexpr inline u32 VERSION_MINOR = 2;
+constexpr inline u32 VERSION_MINOR = 3;
 
 /**
  * @brief The patch version.
  */
-constexpr inline u32 VERSION_PATCH = 1;
+constexpr inline u32 VERSION_PATCH = 0;

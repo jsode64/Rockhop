@@ -42,7 +42,7 @@ i32 Game::eval() const {
     score += (aMancala - bMancala) * EW_STONE_IN_MANCALA;
     
     // Favor pit control.
-    for (u64 i = 1; i <= N_PITS; i++)
+    for (u8 i = 1; i <= N_PITS; i++)
         score += (a.pit(i) - b.pit(i)) * EW_STONE_IN_PIT;
 
     return score;
@@ -57,7 +57,11 @@ bool Game::is_over() const {
 }
 
 void Game::display() const {
-    const char turnChar = a.has_turn() ? 'v' : '^';
+    const char turnChar = is_over()
+        ? '-'
+        : is_pov_turn()
+            ? 'v'
+            : '^';
     std::print(
         "------------------------\n"
         "   1  2  3  4  5  6\n"

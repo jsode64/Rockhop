@@ -12,6 +12,10 @@ static constexpr i32 SCORE_MAX = std::numeric_limits<i32>::max();
 
 static constexpr i32 SCORE_MIN = std::numeric_limits<i32>::min();
 
+AI::ScoredMove::ScoredMove(size i, i32 score) : i(i), score(score) {
+
+}
+
 std::tuple<u64, i32> AI::find_move(const Game game, const i32 depth) {
     const bool  isPovTurn   = game.is_pov_turn();
     u64         bestMove    = 0;
@@ -20,10 +24,8 @@ std::tuple<u64, i32> AI::find_move(const Game game, const i32 depth) {
     i32         beta        = SCORE_MAX;
 
     // Iterate possible moves.
-    auto [moves, nMoves] = AI::get_sorted_moves(game);
-    for (size i = 0; i < nMoves; i++) {
-        const u64 move  = moves[i].move;
-        const i32 score = AI::alpha_beta(game, move, depth - 1, alpha, beta);
+    for (const auto move: get_sorted_moves(game)) {
+        const i32 score = alpha_beta(game, move, depth - 1, alpha, beta);
 
         if (isPovTurn) {
             if (score > bestScore) {
@@ -44,30 +46,34 @@ std::tuple<u64, i32> AI::find_move(const Game game, const i32 depth) {
 }
 
 __attribute__((hot))
-std::tuple<AI::MoveArr, size> AI::get_sorted_moves(const Game game) {
-    AI::MoveArr moves   = {ScoredMove()};
-    size        nMoves  = 0;
-    const auto  [u, o]  = game.get_turn_user_opp();
+MoveList AI::get_sorted_moves(const Game game) {
+    MoveList                        legalMoves  = game.legal_moves();
+    const size                      nMoves      = legalMoves.n_moves();
+    std::array<ScoredMove, N_PITS>  scoredMoves = {};
+    const auto                      [u, o]      = game.get_turn_user_opp();
 
-    // Get legal moves.
-    for (auto move: game.legal_moves()) {
-        moves[nMoves].move  = move;
-        moves[nMoves].score = AI::score_move(u, o, move);
-        nMoves++;
-    }
+    // Score legal moves.
+    for (size i = 0; i < nMoves; i++)
+        scoredMoves[i] = ScoredMove(i, score_move(u, o, legalMoves[i]));
 
-    std::span<AI::ScoredMove> validMoves(moves.begin(), nMoves);
+    // Sort moves based on score.
+    std::span<ScoredMove> movesToSort(scoredMoves.begin(), nMoves);
     std::sort(
-        validMoves.begin(),
-        validMoves.end(),
+        movesToSort.begin(),
+        movesToSort.end(),
         [](auto a, auto b){ return a.score > b.score; }
     );
+    
+    // Get final sorted move list.
+    MoveList orderedMoves(nMoves);
+    for (size i = 0; i < nMoves; i++)
+        orderedMoves[i] = legalMoves[scoredMoves[i].i];
 
-    return std::tuple(moves, nMoves);
+    return orderedMoves;
 }
 
 __attribute__((hot))
-i32 AI::alpha_beta(Game game, const u64 move, const i32 depth, i32 a, i32 b) {
+i32 AI::alpha_beta(Game game, const u8 move, const i32 depth, i32 a, i32 b) {
     // This is OK because only legal moves are iterated.
     game.make_move_unchecked(move);
 
@@ -75,16 +81,15 @@ i32 AI::alpha_beta(Game game, const u64 move, const i32 depth, i32 a, i32 b) {
     if (depth < 1 || game.is_over())
         return game.eval();
 
-    i32     score           = 0;
-    auto    [moves, nMoves] = AI::get_sorted_moves(game);
+    i32     score   = 0;
+    auto    moves   = get_sorted_moves(game);
 
     // PoV move; find response with highest score.
     if (game.is_pov_turn()) {
         score = SCORE_MIN;
 
-        for (size i = 0; i < nMoves; i++) {
-            auto move = moves[i].move;
-            score = std::max(score, AI::alpha_beta(game, move, depth - 1, a, b));
+        for (const auto move: moves) {
+            score = std::max(score, alpha_beta(game, move, depth - 1, a, b));
             if (score >= b)
                 break;
             else
@@ -96,9 +101,8 @@ i32 AI::alpha_beta(Game game, const u64 move, const i32 depth, i32 a, i32 b) {
     else {
         score = SCORE_MAX;
 
-        for (size i = 0; i < nMoves; i++) {
-            auto move = moves[i].move;
-            score = std::min(score, AI::alpha_beta(game, move, depth - 1, a, b));
+        for (const auto move: moves) {
+            score = std::min(score, alpha_beta(game, move, depth - 1, a, b));
             if (score <= a)
                 break;
             else
@@ -110,8 +114,8 @@ i32 AI::alpha_beta(Game game, const u64 move, const i32 depth, i32 a, i32 b) {
 }
 
 __attribute__((hot))
-i32 AI::score_move(const Side u, const Side o, const u64 i) {
-    const u64 nStones = u.pit(i);
+i32 AI::score_move(const Side u, const Side o, const u8 i) {
+    const u8 nStones = static_cast<u8>(u.pit(i));
 
     if (nStones < i && u.pit(i - nStones) == 0) {
         // Captures are best to try first.

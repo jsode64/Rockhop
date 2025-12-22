@@ -9,29 +9,23 @@
 
 class AI {
 private:
-    /**
-     * @brief A move and its score used for move ordering.
-     */
     struct ScoredMove {
         /**
-         * @brief The move.
+         * @brief The move's index in a `MoveList`.
          */
-        u64 move;
+        size i;
 
         /**
          * @brief The move's score.
          */
         i32 score;
 
-        constexpr ScoredMove() : move(0), score(0) {
+        constexpr ScoredMove() : i(), score() {
 
         }
-    };
 
-    /**
-     * @brief An array of moves.
-     */
-    using MoveArr = std::array<AI::ScoredMove, 6>;
+        explicit ScoredMove(size i, i32 score);
+    };
 
 public:
     /**
@@ -43,15 +37,15 @@ private:
     /** 
      * @brief Returns the legal moves sorted by instant potential in ascending order.
      */
-    static std::tuple<AI::MoveArr, size> get_sorted_moves(Game game);
+    static MoveList get_sorted_moves(Game game);
 
     /** 
      * @brief Alpha beta prune depth search.
      */
-    static i32 alpha_beta(Game game, u64 move, i32 depth, i32 a, i32 b);
+    static i32 alpha_beta(Game game, u8 move, i32 depth, i32 a, i32 b);
 
     /**
      * @brief Scores the given move.
      */
-    static i32 score_move(Side u, Side o, u64 i);
+    static i32 score_move(Side u, Side o, u8 move);
 };

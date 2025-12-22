@@ -1,52 +1,54 @@
 #pragma once
 
+#include <array>
+
+#include "config.h"
 #include "def.h"
 #include "side.h"
 
 class MoveList {
-protected:
+private:
     /**
-     * @brief A bitmap of legal moves.
+     * @brief An array of legal moves.
      */
-    u8 moves;
+    std::array<u8, N_PITS>  moves;
+
+    /**
+     * @brief The number of moves.
+     */
+    size nMoves;
 
 public:
     /**
-     * @brief Iterator for moves.
+     * @brief A move list from the given side.
      */
-    class MoveIter {
-    private:
-        /**
-         * @brief A bitmap of legal moves.
-         */
-        u8 moves;
-
-    public:
-        MoveIter(u8 moves);
-
-        u64 operator*();
-
-        MoveIter& operator++();
-
-        bool operator==(const MoveIter& other);
-
-        bool operator!=(const MoveIter& other);
-    };
-
-    MoveList(const Side& side);
+    explicit MoveList(Side side);
 
     /**
-     * @brief Returns `true` if the given move is legal.
+     * @brief A move list with the given number of moves.
+     * 
+     * @warning The moves must be defined explicitly and are uninitialized otherwise.
      */
-    bool has_move(u64 i);
+    explicit MoveList(size nMoves);
+
+    inline auto begin() {
+        return moves.begin();
+    }
+
+    inline auto end() {
+        return moves.begin() + nMoves;
+    }
+
+    inline u8& operator[](size i) {
+        return moves[i];
+    }
+
+    inline size n_moves() const {
+        return nMoves;
+    }
 
     /**
-     * @brief Returns an iterator over the legal moves.
+     * @brief Returns `true` if the given move is in the move list, `false` if not.
      */
-    MoveIter begin() const;
-
-    /**
-     * @brief The end of a `MoveList::MoveIter`.
-     */
-    MoveIter end() const;
+    bool has_move(u8 move) const;
 };
