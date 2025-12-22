@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <span>
 #include <utility>
 
 #include "movelist.h"
@@ -55,9 +56,10 @@ std::tuple<AI::MoveArr, size> AI::get_sorted_moves(const Game game) {
         nMoves++;
     }
 
+    std::span<AI::ScoredMove> validMoves(moves.begin(), nMoves);
     std::sort(
-        moves.begin(),
-        moves.begin() + nMoves,
+        validMoves.begin(),
+        validMoves.end(),
         [](auto a, auto b){ return a.score > b.score; }
     );
 
@@ -70,9 +72,8 @@ i32 AI::alpha_beta(Game game, const u64 move, const i32 depth, i32 a, i32 b) {
     game.make_move_unchecked(move);
 
     // Break for depth or game end.
-    if (depth < 1 || game.is_over()) {
+    if (depth < 1 || game.is_over())
         return game.eval();
-    }
 
     i32     score           = 0;
     auto    [moves, nMoves] = AI::get_sorted_moves(game);
@@ -115,13 +116,11 @@ i32 AI::score_move(const Side u, const Side o, const u64 i) {
     if (nStones < i && u.pit(i - nStones) == 0) {
         // Captures are best to try first.
         const u64 opStones = o.pit(7 + nStones - i);
-        if (opStones > 0) {
+        if (opStones > 0)
             return 2'000 + opStones;
-        }
-    } else if (nStones == i) {
+    } else if (nStones == i)
         // Chains are good; prioritize ones closer to the mancala.
         return 1'000 - i;
-    }
 
     // Nothing significant about the move.
     return 0;

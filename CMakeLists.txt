@@ -3,9 +3,7 @@ project(rockhop)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_compile_options(-O3 -Wall -Wextra -Wpedantic)
-
-# -fno-omit-frame-pointer
+add_compile_options(-O3 -Wall -Wextra -Werror)
 
 file(GLOB SOURCES "./src/*.cpp")
 add_executable(rockhop ${SOURCES})

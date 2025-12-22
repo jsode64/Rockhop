@@ -73,20 +73,4 @@ public:
      * If called with an illegal move, the turns will just be swapped.
      */
     void make_move_unchecked(u64 move);
-
-private:
-    /**
-     * @brief Returns references of whose turn it is to move next and their opponent.
-     */
-    std::tuple<Side&, Side&> get_turn_user_opp_ref();
-
-    /**
-     * @brief Handles the move chaining and game ending.
-     */
-    void handle_move(bool chain);
-
-    /**
-     * @brief Swaps whose turn it is to move.
-     */
-    void swap_turn();
 };

@@ -74,11 +74,13 @@ void Game::display() const {
 }
 
 bool Game::make_move(u64 move) {
-    auto [u, o] = get_turn_user_opp_ref();
+    Side u = a.has_turn()
+        ? a
+        : b;
 
     if (MoveList(u).has_move(move)) {
         // Make the move.
-        handle_move(u.make_move(move, o));
+        make_move_unchecked(move);
         return true;
     } else {
         // Move was illegal.
@@ -87,29 +89,21 @@ bool Game::make_move(u64 move) {
 }
 
 void Game::make_move_unchecked(u64 move) {
-    auto [u, o] = get_turn_user_opp_ref();
-    handle_move(u.make_move(move, o));
-}
-
-std::tuple<Side&, Side&> Game::get_turn_user_opp_ref() {
-    return a.has_turn()
+    // Make move.
+    auto        [u, o]  = a.has_turn()
         ? std::tie(a, b)
         : std::tie(b, a);
-}
+    const bool  isChain = u.make_move(move, o);
 
-void Game::handle_move(bool chain) {
-    // Change turns if not chaining.
-    if (!chain)
-        swap_turn();
-
-    // Handle game ending.
+    // Check for game ending.
     if (is_over()) {
         a.take_pits();
         b.take_pits();
     }
-}
 
-void Game::swap_turn() {
-    a.toggle_turn();
-    b.toggle_turn();
+    // Check for move chaining.
+    else if (isChain) {
+        a.toggle_turn();
+        b.toggle_turn();
+    }
 }
