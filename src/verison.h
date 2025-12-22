@@ -17,4 +17,4 @@ constexpr inline u32 VERSION_MINOR = 2;
 /**
  * @brief The patch version.
  */
-constexpr inline u32 VERSION_PATCH = 0;
+constexpr inline u32 VERSION_PATCH = 1;

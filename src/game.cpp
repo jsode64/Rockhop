@@ -101,8 +101,8 @@ void Game::make_move_unchecked(u64 move) {
         b.take_pits();
     }
 
-    // Check for move chaining.
-    else if (isChain) {
+    // Change turns if not chaining.
+    if (!isChain) {
         a.toggle_turn();
         b.toggle_turn();
     }
