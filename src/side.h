@@ -5,29 +5,68 @@
 class Side {
 private:
     /**
-     * @brief The Kalah player's pits in a bitmap.
-     * 
-     * @details Each pit it 8 bits as well as the mancala. The 8 least significant
-     * bits are the mancala, then the next 8 are pit #1, then pit #2, etc. The last
-     * 8 bits are unused.
+     * @brief the turn bit.
      */
-    u64 pits;
+    static constexpr u64 TURN_BIT       = 0x8000000000000000ULL;
+
+    /**
+     * @brief A side with all pits holding one stone.
+     */
+    static constexpr u64 PIT_ONES       = 0x0001010101010100ULL;
+
+    /**
+     * @brief A side with all pits and the mancala holding one stone.
+     */
+    static constexpr u64 ALL_ONES       = 0x0001010101010101ULL;
+
+    /**
+     * @brief A bitmask for the mancala.
+     */
+    static constexpr u64 MAN_MASK       = 0x00000000000000FFULL;
+
+    /**
+     * @brief A bitmask 
+     */
+    static constexpr u64 PIT_MASK       = 0x00FFFFFFFFFFFF00ULL;
+
+    union {
+        /**
+         * @brief The Kalah player's pits in a bitmap.
+         * 
+         * @details Each pit it 8 bits as well as the mancala. The 8 least significant
+         * bits are the mancala, then the next 8 are pit #1, then pit #2, etc. The last
+         * 8 bits are unused.
+         */
+        u64 pits;
+
+        struct {
+            u8 man;
+            u8 p1;
+            u8 p2;
+            u8 p3;
+            u8 p4;
+            u8 p5;
+            u8 p6;
+            u8 flags;
+        };
+    };
 
 public:
     Side(bool isTurn);
 
     /**
-     * @brief Returns the number of stones in the given pit.
-     * 
-     * @details Passing 0 will give the mancala (same as `PlayState::mancala`) 
-     * and 1 will give pit #1, 2 pit #2, etc.
+     * @brief Returns the number of stones in the pit at the given index.
      */
-    u64 pit(u64 i) const;
+    inline i32 pit(u64 i) const {
+        return pit_i(i * 8);
+    }
 
     /**
      * @brief Returns the number of stones in the mancala.
      */
-    u64 mancala() const;
+    inline i32 mancala() const {
+        return static_cast<i32>(man);
+    }
 
     /**
      * @brief Grades the given pit and returns its score.
@@ -66,5 +105,7 @@ private:
      * 
      * @note Assumes the given index is the pit index multiplied by 8.
      */
-    u64 pit_i(u64 i) const;
+    inline i32 pit_i(u64 i) const {
+        return static_cast<i32>((pits >> i) & Side::MAN_MASK);
+    }
 };

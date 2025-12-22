@@ -29,8 +29,8 @@ MoveList Game::legal_moves() const {
 __attribute__((hot))
 i32 Game::eval() const {
     i32 score       = 0;
-    u64 aMancala    = a.mancala();
-    u64 bMancala    = b.mancala();
+    i32 aMancala    = a.mancala();
+    i32 bMancala    = b.mancala();
 
     // Catch an unstoppable win for either player.
     if (aMancala >= N_STONES_TO_WIN)
@@ -39,14 +39,11 @@ i32 Game::eval() const {
         return -EW_WINNING;
 
     // Favor a bountiful mancala.
-    score += (static_cast<i32>(aMancala) - static_cast<i32>(bMancala)) * EW_STONE_IN_MANCALA;
+    score += (aMancala - bMancala) * EW_STONE_IN_MANCALA;
     
     // Favor pit control.
-    for (u64 i = 0; i <= N_PITS; i++) {
-        i32 nStonesA = static_cast<i32>(a.pit(i));
-        i32 nStonesB = static_cast<i32>(b.pit(i));
-        score += (nStonesA - nStonesB) * EW_STONE_IN_PIT;
-    }
+    for (u64 i = 1; i <= N_PITS; i++)
+        score += (a.pit(i) - b.pit(i)) * EW_STONE_IN_PIT;
 
     return score;
 }

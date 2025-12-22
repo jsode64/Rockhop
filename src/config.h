@@ -20,7 +20,7 @@ static constexpr inline u64 N_STONES            = N_STARTING_STONES * N_PITS * 2
 /**
  * @brief The number of stones to guarantee a win.
  */
-static constexpr inline u64 N_STONES_TO_WIN     = (N_STONES / 2) + 1;
+static constexpr inline i32 N_STONES_TO_WIN     = static_cast<i32>((N_STONES / 2) + 1);
 
 /**
  * @brief The evaluation weight/score of having a guaranteed winning position.

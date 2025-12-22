@@ -2,12 +2,13 @@
 
 #include <bit>
 
+#include "config.h"
+
 MoveList::MoveList(const Side& side) : moves(0) {
-    for (u64 i = 1; i <= 6; i++) {
-        // Mark moves for non-empty pits.
-        if (side.pit(i) > 0) {
+    // Mark moves for non-empty pits.
+    for (u64 i = 1; i <= N_PITS; i++) {
+        if (side.pit(i) > 0)
             moves |= 1ULL << i;
-        }
     }
 }
 
